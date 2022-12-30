@@ -1,0 +1,11 @@
+# Dump entries as table.
+
+templatenew
+# ***** Table line
+template+ %Y\t[%T]\t[%d]\t[%X]\t\t[%H][%B][%J][, %r][, vol.~%V][, %t~%N|, no.~%N]\t[%i]\t\t[%I]
+template+ \n
+
+# Select and export all entries.
+citeAll
+sort year/A month/A day/D
+export
