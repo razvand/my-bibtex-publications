@@ -1,35 +1,62 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
+"""
+Parse contents of .bib file and print it as table (Tab-separated) text list.
+"""
+
+import sys
 import bibtexparser
 
-with open('publications.bib') as f:
-    bibdb = bibtexparser.load(f)
 
-for e in bibdb.entries:
-    y = e['year']
-    t = e['title']
-    doi = ""
-    if 'doi' in e.keys():
-        doi = e['doi']
-    wos = ""
-    if 'note' in e.keys():
-        if e['note'].find('WOS') != -1:
-            wos = e['note'].split(':')[1]
-    j = ""
-    if e['ENTRYTYPE'] == 'inproceedings':
-        j = e['booktitle']
-    elif e['ENTRYTYPE'] == 'article':
-        v = ''
-        n = ''
-        if 'volume' in e.keys():
-            v = e['volume']
-        if 'number' in e.keys():
-            n = e['number']
-        j = "{}, vol. {}, num. {}".format(e['journal'], v, n)
-    issn = ""
-    isbn = ""
-    if 'isbn' in e:
-        isbn = e['isbn']
-    if 'issn' in e:
-        issn = e['issn']
-    print u"{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}".format(y, t, doi, wos, "", j, issn, "", isbn)
+def main():
+    """Do everything in the main() function:
+         - open .bib file
+         - parse .bib file using bibtexparser API
+         - walk entries
+         - extract and process required fields in each entry
+         - print fields in table format (Tab-separated)
+    """
+
+    with open('publications.bib') as bibfile:
+        content = bibfile.read()
+        content = content.replace("\"\n}", "\",\n}")
+        bibdb = bibtexparser.loads(content)
+
+    for entry in bibdb.entries:
+        year = entry['year']
+        title = entry['title']
+
+        doi = ""
+        if 'doi' in entry.keys():
+            doi = entry['doi']
+
+        wos = ""
+        if 'note' in entry.keys():
+            if entry['note'].find('WOS') != -1:
+                wos = entry['note'].split(':')[1]
+
+        venue = ""
+        if entry['ENTRYTYPE'] == 'inproceedings':
+            venue = entry['booktitle']
+        elif entry['ENTRYTYPE'] == 'article':
+            volume = ""
+            number = ""
+            if 'volume' in entry.keys():
+                volume = entry['volume']
+            if 'number' in entry.keys():
+                number = entry['number']
+            venue = "{}, vol. {}, num. {}".format(entry['journal'], volume, number)
+
+        issn = ""
+        isbn = ""
+        if 'isbn' in entry:
+            isbn = entry['isbn']
+        if 'issn' in entry:
+            issn = entry['issn']
+
+        print("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}".format(
+            year, title, doi, wos, "", venue, issn, "", isbn))
+
+
+if __name__ == "__main__":
+    sys.exit(main())
